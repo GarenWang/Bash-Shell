@@ -1,3 +1,5 @@
+最简单实现并行执行的方法：&+wait
+
 串行代码与执行时间
 shiyanlou:bashtest/ $ cat cx.sh                                                                                           [21:12:42]
 for((i=1;i<=3;i++))
