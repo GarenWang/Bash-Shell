@@ -64,3 +64,34 @@ Job 10 Ijob  sleeping for 1 seconds ...
 Job 10 Ijob  exiting ...
 Job 8 Ijob  exiting ...
 Job 9 Ijob  exiting ...
+
+
+
+一个更简洁的方法是记录PID到数组, 通过检查PID存在与否以确定作业是否运行完毕. 可实现如下
+
+# Language: bash
+Njob=10    # 作业数目
+Nproc=5    # 可同时运行的最大作业数
+
+function CMD {        # 测试命令, 随机等待几秒钟
+	n=$((RANDOM % 5 + 1))
+	echo "Job $1 Ijob $2 sleeping for $n seconds ..."
+	sleep $n
+	echo "Job $1 Ijob $2 exiting ..."
+}
+
+PID=() # 记录PID到数组, 检查PID是否存在以确定是否运行完毕
+for((i=1; i<=Njob; )); do
+	for((Ijob=0; Ijob<Nproc; Ijob++)); do
+		if [[ $i -gt $Njob ]]; then
+			break;
+		fi
+		if [[ ! "${PID[Ijob]}" ]] || ! kill -0 ${PID[Ijob]} 2> /dev/null; then  #向进程发送信号，以确认进程是否存在
+			CMD $i $Ijob &
+			PID[Ijob]=$!
+			i=$((i+1))
+		fi
+	done
+	sleep 1
+done
+wait
